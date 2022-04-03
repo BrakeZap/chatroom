@@ -27,6 +27,9 @@ class LoginFrame(ttk.Frame):
     def setFrames(self,frames):
         self.frames = frames
 
+    def login(self):
+        pass
+
     def __init__(self, parent):
         ttk.Frame.__init__(self,parent, padding="3 3 12 12")
         self.frames = {}
@@ -44,6 +47,10 @@ class LoginFrame(ttk.Frame):
 
         createAccountButton = ttk.Button(self, text="Create an account", command=lambda: self.changeFrame())
         createAccountButton.grid(row=2, column=0, stick="W")
+
+        loginButton = ttk.Button(self, text="Login", command=lambda: self.login())
+        loginButton.grid(row=2, column=1)
+
 
 
 class CreateAccountFrame(ttk.Frame):
