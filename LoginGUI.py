@@ -1,6 +1,8 @@
 from tkinter import *
 from tkinter import ttk
 
+from DatabaseAccesser import Database
+
 class LoginGUI:
     def __init__(self):
         root = Tk()
@@ -28,21 +30,30 @@ class LoginFrame(ttk.Frame):
         self.frames = frames
 
     def login(self):
-        pass
+        db = Database()
+        if db.checkPassword(self.username.get(), self.password.get()):
+            #start main gui loop
+            print("Successfully logged in!")
+        else:
+            self.incorrectLoginLabel = Label(self, text="Incorrect Login!")
+            self.incorrectLoginLabel.config(fg='red')
+            self.incorrectLoginLabel.grid(row=3, column=0)
+        
+        db.closeConnection()
 
     def __init__(self, parent):
         ttk.Frame.__init__(self,parent, padding="3 3 12 12")
         self.frames = {}
         usernameLabel = ttk.Label(self, text="Username:")
         usernameLabel.grid(row=0, column=0, sticky="W")
-        username = StringVar()
-        usernameEntry = ttk.Entry(self, textvariable=username)
+        self.username = StringVar()
+        usernameEntry = ttk.Entry(self, textvariable=self.username)
         usernameEntry.grid(row=0, column=1)
 
         passwordLabel = ttk.Label(self, text="Password:")
         passwordLabel.grid(row=1, column=0, sticky="W")
-        password = StringVar()
-        passwordEntry = ttk.Entry(self, textvariable=password)
+        self.password = StringVar()
+        passwordEntry = ttk.Entry(self, textvariable=self.password)
         passwordEntry.grid(row=1, column=1)
 
         createAccountButton = ttk.Button(self, text="Create an account", command=lambda: self.changeFrame())
@@ -63,6 +74,9 @@ class CreateAccountFrame(ttk.Frame):
             self.nonMatchingPassLabel.config(fg="red")
             self.nonMatchingPassLabel.grid(row=4, column=0)
         else:
+            db = Database()
+            db.insertUser(self.username.get(), self.password.get())
+            db.closeConnection()
             #self.nonMatchingPassLabel.forget()
             frame = self.frames["default"]
             frame.grid(row=0, column=0)
@@ -76,8 +90,8 @@ class CreateAccountFrame(ttk.Frame):
         self.frames = {}
         usernameLabel = ttk.Label(self, text="Username:")
         usernameLabel.grid(row=0, column=0,sticky="W")
-        username = StringVar()
-        usernameEntry = ttk.Entry(self, textvariable=username)
+        self.username = StringVar()
+        usernameEntry = ttk.Entry(self, textvariable=self.username)
         usernameEntry.grid(row=0, column=1)
 
         passwordLabel = ttk.Label(self, text="Password:")
