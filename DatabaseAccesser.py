@@ -24,10 +24,8 @@ class Database:
     def checkPassword(self, username, password):
         #TODO: Implement try catch here later
         convertedPass = hashlib.sha256(password.encode('utf-8')).hexdigest()
-        print(convertedPass)
         self.cur.execute("SELECT Password FROM users where Username=?", (username,))
         for entry in self.cur:
-            print(entry)
             if entry[0] == convertedPass:
                 return True
 
