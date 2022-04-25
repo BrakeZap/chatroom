@@ -6,45 +6,21 @@ from tkinter import ttk
 class MainGUI(ttk.Frame):
     # TODO: Disconnect from current chat room and enter another
     def changeChatRoom(self, event=None):
-        pass
+        self.showMessages()
 
     # TODO: Change "Kyle" to client's actual name
     def sendMessage(self, event=None):
         self.messages.insert("", 'end', values=(self.chatRooms.get(), self.username, self.message.get()))
 
-    def __init__(self, parent, username):
-        ttk.Frame.__init__(self, parent, padding="3 3 12 12")
-        self.username = username
-        # Setup main frame of GUI
-        mainframe = ttk.Frame(self, padding="3 3 12 12")
-        mainframe.grid(column=0, row=0, sticky="N, W, E, S")
+    def showMessages(self):
+        self.messages.grid(column=2, row=0)
+        self.scrollBar.grid(column=3, row=0)
+        self.entryMessage.grid(row=3, column=2)
+        self.sendButton.grid(row=3, column=3)
 
-        # Sets current chatrooms label
-        label = ttk.Label(mainframe, text="Current chatrooms: ")
-        label['font'] = "TkHeadingFont"
-        label.grid(column=1, row=0, sticky="W, E")
-
-        # Creates the dropdown menu to choose the chatroom.
-        self.chatRooms = ttk.Combobox(mainframe)
-        # Binds the event of changing chatrooms to the changeChatRoom function
-        self.chatRooms.bind("<<ComboboxSelected>>", self.changeChatRoom)
-        self.chatRooms.grid(column=1, row=2, sticky="W, E")
-        self.chatRooms.state(["readonly"])
-        # TODO: Change chatroom values to the acutal avaliable chatrooms
-        self.chatRooms['values'] = ('Chatroom A', 'Chatroom B', 'Chatroom C')
-
-        # Creates the input variable that listens to sent message
-        self.message = StringVar()
-        self.message.set("Type your message here: ")
-        entryMessage = ttk.Entry(mainframe, textvariable=self.message)
-        entryMessage.grid(row=3, column=2)
-
-        # Creates the send button which fires the sendMessage function when clicked
-        sendButton = ttk.Button(mainframe, text="Send", command=self.sendMessage)
-        sendButton.grid(row=3, column=3)
-
+    def createWidgets(self):
         # Creates a tree view element where the messages sent by users will be stored
-        self.messages = ttk.Treeview(mainframe)
+        self.messages = ttk.Treeview(self.mainframe)
         # Creates 3 column name variables
         self.messages['columns'] = ("Chatroom", "Name", "Message")
         # There is a hidden 0th column, so set the width to 0
@@ -61,9 +37,52 @@ class MainGUI(ttk.Frame):
         self.messages.heading("Message", text="Message")
         # Set the grid position of the tree view (Needs to be changed around to look good in the future...)
         self.messages.grid(column=2, row=0)
-        # Insert a fake value into the messages
-        self.messages.insert('', 'end', values=(self.chatRooms.get(), "Kyle", "Hi there!"))
 
         # Create a scrollbar to scroll through past messages
-        scrollBar = ttk.Scrollbar(mainframe, orient="vertical", command=self.messages.yview)
-        scrollBar.grid(column=3, row=0)
+        self.scrollBar = ttk.Scrollbar(self.mainframe, orient="vertical", command=self.messages.yview)
+        self.scrollBar.grid(column=3, row=0)
+
+        # Creates the input variable that listens to sent message
+        self.message = StringVar()
+        self.message.set("Type your message here: ")
+        self.entryMessage = ttk.Entry(self.mainframe, textvariable=self.message)
+        self.entryMessage.grid(row=3, column=2)
+
+        # Creates the send button which fires the sendMessage function when clicked
+        self.sendButton = ttk.Button(self.mainframe, text="Send", command=self.sendMessage)
+        self.sendButton.grid(row=3, column=3)
+
+    def hideWidgets(self):
+        self.messages.grid_forget()
+        self.scrollBar.grid_forget()
+        self.entryMessage.grid_forget()
+        self.sendButton.grid_forget()
+
+    def __init__(self, parent, username):
+        ttk.Frame.__init__(self, parent, padding="3 3 12 12")
+        self.sendButton = None
+        self.entryMessage = None
+        self.message = None
+        self.scrollBar = None
+        self.messages = None
+        self.username = username
+        # Setup main frame of GUI
+        self.mainframe = ttk.Frame(self, padding="3 3 12 12")
+        self.mainframe.grid(column=0, row=0, sticky="N, W, E, S")
+
+        # Sets current chatrooms label
+        label = ttk.Label(self.mainframe, text="Current chatrooms: ")
+        label['font'] = "TkHeadingFont"
+        label.grid(column=1, row=0, sticky="W, E")
+
+        # Creates the dropdown menu to choose the chatroom.
+        self.chatRooms = ttk.Combobox(self.mainframe)
+        # Binds the event of changing chatrooms to the changeChatRoom function
+        self.chatRooms.bind("<<ComboboxSelected>>", self.changeChatRoom)
+        self.chatRooms.grid(column=1, row=2, sticky="W, E")
+        self.chatRooms.state(["readonly"])
+        # TODO: Change chatroom values to the actual available chatrooms
+        self.chatRooms['values'] = ('Chatroom A', 'Chatroom B', 'Chatroom C')
+
+        self.createWidgets()
+        self.hideWidgets()
