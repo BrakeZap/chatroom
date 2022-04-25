@@ -2,16 +2,17 @@ import mariadb
 import sys
 import hashlib
 
+
 class Database:
     def __init__(self):
         try:
-            #TODO: Change to actual database credentials
+            # TODO: Change to actual database credentials
             self.conn = mariadb.connect(
-            user="root",
-            password="cats56",
-            host="localhost",
-            port=3306,
-            database="logininfo"
+                user="root",
+                password="cats56",
+                host="localhost",
+                port=3306,
+                database="logininfo"
 
             )
         except mariadb.Error as e:
@@ -22,7 +23,7 @@ class Database:
         self.cur = self.conn.cursor()
 
     def checkPassword(self, username, password):
-        #TODO: Implement try catch here later
+        # TODO: Implement try catch here later
         convertedPass = hashlib.sha256(password.encode('utf-8')).hexdigest()
         self.cur.execute("SELECT Password FROM users where Username=?", (username,))
         for entry in self.cur:
@@ -31,7 +32,6 @@ class Database:
 
         return False
 
-    
     def insertUser(self, username, password):
         convertedPass = hashlib.sha256(password.encode('utf-8')).hexdigest()
         try:
@@ -41,7 +41,6 @@ class Database:
             self.conn.close()
             sys.exit(1)
         self.conn.commit()
-
 
     def closeConnection(self):
         self.conn.close()
