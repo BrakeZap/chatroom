@@ -1,13 +1,14 @@
-import select, socket, _thread
+import _thread
+import socket
 
 new_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 new_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 host_name = socket.gethostname()
-s_ip = socket.gethostbyname(host_name)
+print(f"host name is : {host_name}")
 
 port = 8080
 
-new_socket.bind((host_name, port))
+new_socket.bind(("192.168.1.15", port))
 print("Binding successful!")
 
 new_socket.listen(10)

@@ -1,16 +1,51 @@
-import tkinter
 from tkinter import *
 from tkinter import ttk
+import socket
+import select
+import _thread
+
+IP_address = "192.168.1.15"
+port = 8080  # TODO: Change to actual values
 
 
 class MainGUI(ttk.Frame):
     # TODO: Disconnect from current chat room and enter another
     def changeChatRoom(self, event=None):
+        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server.connect((IP_address, port))
         self.showMessages()
+        _thread.start_new_thread(self.runConnection, (self.server,))
 
-    # TODO: Change "Kyle" to client's actual name
-    def sendMessage(self, event=None):
-        self.messages.insert("", 'end', values=(self.chatRooms.get(), self.username, self.message.get()))
+    def sendClientMessage(self, event=None):
+        self.server.send(bytes(self.message.get(), 'utf-8'))
+        self.messages.insert("", 'end', values=(self.chatRooms.get(), "You", self.message.get()))
+
+    def sendServerMessage(self, message):
+        self.messages.insert("", 'end', values=(self.chatRooms.get(), "placeholder", message))
+
+    def runConnection(self, server):
+        while True:
+
+            # maintains a list of possible input streams
+            sockets_list = [self.server]
+
+            """ There are two possible input situations. Either the
+            user wants to give manual input to send to other people,
+            or the server is sending a message to be printed on the
+            screen. Select returns from sockets_list, the stream that
+            is reader for input. So for example, if the server wants
+            to send a message, then the if condition will hold true
+            below.If the user wants to send a message, the else
+            condition will evaluate as true"""
+            read_sockets, write_socket, error_socket = select.select(sockets_list, [], [])
+
+            for socks in read_sockets:
+                if socks == self.server:
+                    message = socks.recv(2048)
+                    self.sendServerMessage(message)
+                else:
+                    self.sendClientMessage()
+        server.close()
 
     def showMessages(self):
         self.messages.grid(column=2, row=0)
@@ -49,7 +84,7 @@ class MainGUI(ttk.Frame):
         self.entryMessage.grid(row=3, column=2)
 
         # Creates the send button which fires the sendMessage function when clicked
-        self.sendButton = ttk.Button(self.mainframe, text="Send", command=self.sendMessage)
+        self.sendButton = ttk.Button(self.mainframe, text="Send", command=self.sendClientMessage)
         self.sendButton.grid(row=3, column=3)
 
     def hideWidgets(self):
@@ -60,6 +95,7 @@ class MainGUI(ttk.Frame):
 
     def __init__(self, parent, username):
         ttk.Frame.__init__(self, parent, padding="3 3 12 12")
+        self.server = None
         self.sendButton = None
         self.entryMessage = None
         self.message = None
