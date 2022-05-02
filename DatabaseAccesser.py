@@ -8,9 +8,9 @@ class Database:
         try:
             # TODO: Change to actual database credentials
             self.conn = mariadb.connect(
-                user="main",
+                user="root",
                 password="cats56",
-                host="192.18.138.222",
+                host="localhost",
                 port=3306,
                 database="logininfo"
 
