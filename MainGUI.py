@@ -1,3 +1,4 @@
+import json
 from tkinter import *
 from tkinter import ttk
 import socket
@@ -17,11 +18,12 @@ class MainGUI(ttk.Frame):
         _thread.start_new_thread(self.runConnection, (self.server,))
 
     def sendClientMessage(self, event=None):
-        self.server.send(bytes(self.message.get(), 'utf-8'))
+        data = json.dumps({"username": self.username, "message": self.message.get()})
+        self.server.send(data.encode())
         self.messages.insert("", 'end', values=(self.chatRooms.get(), "You", self.message.get()))
 
-    def sendServerMessage(self, message):
-        self.messages.insert("", 'end', values=(self.chatRooms.get(), "placeholder", message))
+    def sendServerMessage(self, username, message):
+        self.messages.insert("", 'end', values=(self.chatRooms.get(), username, message))
 
     def runConnection(self, server):
         while True:
@@ -41,8 +43,9 @@ class MainGUI(ttk.Frame):
 
             for socks in read_sockets:
                 if socks == self.server:
-                    message = socks.recv(2048)
-                    self.sendServerMessage(message)
+                    data = socks.recv(2048)
+                    data = json.loads(data.decode())
+                    self.sendServerMessage(data.get("username"), data.get("message"))
                 else:
                     self.sendClientMessage()
         server.close()

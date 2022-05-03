@@ -1,4 +1,5 @@
 import _thread
+import json
 import socket
 
 new_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -19,21 +20,24 @@ list_of_clients = []
 def clientThread(connection, address):
     while True:
         try:
-            message = connection.recv(2048)
-            if message:
-
+            data = connection.recv(2048)
+            data = json.loads(data.decode())
+            if data:
+                message = data.get("message")
                 # Prints message in current room to console
                 print(f"{address[0]} > {message}")
 
-                broadcast(message, connection)
+                broadcast(data, connection)
 
             else:
                 """message may have no content if the connection
                 is broken, in this case we remove the connection"""
                 remove(connection)
+                _thread.exit()
 
         except socket.error:
-            continue
+            remove(connection)
+            _thread.exit()
 
 
 def broadcast(message, connection):
@@ -68,6 +72,9 @@ while True:
     # creates and individual thread for every user
     # that connects
     _thread.start_new_thread(clientThread, (conn, addr))
+
+
+
 
 conn.close()
 new_socket.close()
