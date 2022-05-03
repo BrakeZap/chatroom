@@ -20,14 +20,14 @@ list_of_clients = []
 def clientThread(connection, address):
     while True:
         try:
-            data = connection.recv(2048)
-            data = json.loads(data.decode())
+            originalData = connection.recv(2048)
+            data = json.loads(originalData.decode())
             if data:
                 message = data.get("message")
                 # Prints message in current room to console
                 print(f"{address[0]} > {message}")
 
-                broadcast(data, connection)
+                broadcast(originalData, connection)
 
             else:
                 """message may have no content if the connection
