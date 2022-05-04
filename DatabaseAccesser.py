@@ -1,3 +1,5 @@
+import json
+
 import mariadb
 import sys
 import hashlib
@@ -5,14 +7,16 @@ import hashlib
 
 class Database:
     def __init__(self):
+        with open('info.json') as jsonFile:
+            data = json.load(jsonFile)
         try:
             # TODO: Change to actual database credentials
             self.conn = mariadb.connect(
-                user="admin",
-                password="cats1234",
-                host="localhost",
-                port=3306,
-                database="logininfo"
+                user=data["database_user"],
+                password=data["database_pass"],
+                host=data["host"],
+                port=data["port"],
+                database=data["database"]
 
             )
         except mariadb.Error as e:

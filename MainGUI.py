@@ -5,7 +5,9 @@ import socket
 import select
 import _thread
 
-IP_address = "192.168.1.15"
+with open('info.json') as jsonFile:
+    data = json.load(jsonFile)
+IP_address = data["ip"]
 port = 8080  # TODO: Change to actual values
 
 
