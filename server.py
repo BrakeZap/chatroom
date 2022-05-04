@@ -1,11 +1,9 @@
-import _thread
+import threading
 import json
 import socket
 
 new_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 new_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-host_name = socket.gethostname()
-print(f"host name is : {host_name}")
 
 port = 8080
 
@@ -17,64 +15,75 @@ new_socket.listen(10)
 list_of_clients = []
 
 
-def clientThread(connection, address):
-    while True:
-        try:
-            originalData = connection.recv(2048)
-            data = json.loads(originalData.decode())
-            if data:
-                message = data.get("message")
-                # Prints message in current room to console
-                print(f"{address[0]} > {message}")
+class ClientThread:
+    def __init__(self):
+        self._running = True
 
-                broadcast(originalData, connection)
+    def terminate(self):
+        self._running = False
 
-            else:
-                """message may have no content if the connection
-                is broken, in this case we remove the connection"""
+    def run(self, connection, clientAddr):
+        while self._running:
+            try:
+                originalData = connection.recv(2048)
+                data = json.loads(originalData.decode())
+                if data:
+                    message = data.get("message")
+                    # Prints message in current room to console
+                    print(f"{clientAddr} > {message}")
+
+                    broadcast(originalData, connection)
+
+                else:
+                    remove(connection)
+
+            except socket.error:
                 remove(connection)
-                _thread.exit()
-
-        except socket.error:
-            remove(connection)
-            _thread.exit()
 
 
 def broadcast(message, connection):
     for clients in list_of_clients:
-        if clients != connection:
+        if clients[0] != connection:
             try:
-                clients.send(message)
+                clients[0].send(message)
             except socket.error:
-                clients.close()
+                clients[0].close()
                 remove(clients)
 
 
+# Maybe a better way to implement this
 def remove(connection):
-    if connection in list_of_clients:
-        list_of_clients.remove(connection)
+    index = 0
+    for con, thread, currAddr in list_of_clients:
+        if conn == connection or thread == connection or currAddr == connection:
+            print(f"Removing client: {currAddr}")
+            list_of_clients.pop(index)
+            thread.terminate()
+        index += 1
 
 
 while True:
-    """Accepts a connection request and stores two parameters,
-    conn which is a socket object for that user, and addr
-    which contains the IP address of the client that just
-    connected"""
-    conn, addr = new_socket.accept()
+    # Waits for a new connection to the server
 
-    """Maintains a list of clients for ease of broadcasting
-    a message to all available people in the chatroom"""
-    list_of_clients.append(conn)
+    conn, addr = new_socket.accept()
+    addr = addr[0]
+
+    # Checks if the connection is already connected to the server. If so, remove it.
+    for obj in list_of_clients:
+        address = obj[2]
+        if addr == address:
+            remove(address)
 
     # prints the address of the user that just connected to console
-    print(addr[0] + " connected")
+    print(addr + " connected")
 
-    # creates and individual thread for every user
-    # that connects
-    _thread.start_new_thread(clientThread, (conn, addr))
+    # creates and individual thread for every user that connects
+    # Adds the connection, thread, and address to the list of clients
 
-
-
+    ct = ClientThread()
+    currThread = threading.Thread(target=ct.run, args=(conn, addr))
+    currThread.start()
+    list_of_clients.append((conn, ct, addr))
 
 conn.close()
 new_socket.close()
