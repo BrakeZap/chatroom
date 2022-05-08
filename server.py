@@ -1,3 +1,4 @@
+import sys
 import threading
 import json
 import socket
@@ -25,17 +26,24 @@ class ClientThread:
     def run(self, connection, clientAddr):
         while self._running:
             try:
+                originalData = connection.recv(2048, socket.MSG_PEEK)
+                if originalData.decode() == "123":
+                    dataSize = sys.getsizeof(originalData)
+                    connection.recv(dataSize)
+                    connection.send(str(len(list_of_clients)).encode())
+                    continue
                 originalData = connection.recv(2048)
-                data = json.loads(originalData.decode())
-                if data:
-                    message = data.get("message")
-                    # Prints message in current room to console
-                    print(f"{clientAddr} > {message}")
+                if originalData:
+                    data = json.loads(originalData.decode())
+                    if data:
+                        message = data.get("message")
+                        # Prints message in current room to console
+                        print(f"{clientAddr} > {message}")
 
-                    broadcast(originalData, connection)
+                        broadcast(originalData, connection)
 
-                else:
-                    remove(connection)
+                    else:
+                        remove(connection)
 
             except socket.error:
                 remove(connection)
