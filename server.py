@@ -65,6 +65,8 @@ def remove(connection):
     for con, thread, currAddr in list_of_clients:
         if conn == connection or thread == connection or currAddr == connection:
             print(f"Removing client: {currAddr}")
+            formatStr = f"{currAddr} left."
+            broadcast(formatStr.encode(), conn)
             list_of_clients.pop(index)
             thread.terminate()
         index += 1
@@ -84,7 +86,7 @@ while True:
 
     # prints the address of the user that just connected to console
     print(addr + " connected")
-
+    broadcast(f"{addr} connected.".encode(), conn)
     # creates and individual thread for every user that connects
     # Adds the connection, thread, and address to the list of clients
 

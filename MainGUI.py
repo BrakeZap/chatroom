@@ -16,7 +16,7 @@ class MainGUI(ttk.Frame):
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.connect(self.ipPortArray[self.chatRooms.current()])
         self.showMessages()
-        _thread.start_new_thread(self.runConnection, (self.server,))
+        _thread.start_new_thread(self.runConnection, ())
 
     def sendClientMessage(self, event=None):
         data1 = json.dumps({"username": self.username, "message": self.message.get()})
@@ -26,7 +26,7 @@ class MainGUI(ttk.Frame):
     def sendServerMessage(self, username, message):
         self.messages.insert("", 'end', values=(self.chatRooms.get(), username, message))
 
-    def runConnection(self, server):
+    def runConnection(self):
         while True:
 
             # maintains a list of possible input streams
@@ -49,7 +49,6 @@ class MainGUI(ttk.Frame):
                     self.sendServerMessage(data1.get("username"), data1.get("message"))
                 else:
                     self.sendClientMessage()
-        server.close()
 
     def showMessages(self):
         self.messages.grid(column=2, row=0)
