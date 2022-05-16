@@ -7,6 +7,7 @@ from tkinter import ttk
 import socket
 import select
 import _thread
+import os
 
 
 class MainGUI(ttk.Frame):
@@ -129,7 +130,7 @@ class MainGUI(ttk.Frame):
         self.scrollBar = None
         self.messages = None
         self.ips = []
-        with open("info.json") as file:
+        with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "info.json")) as file:
             locData = json.load(file)
             self.ips.append(locData["ip1"])
             self.ips.append(locData["ip2"])

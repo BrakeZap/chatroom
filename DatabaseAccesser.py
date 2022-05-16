@@ -1,4 +1,5 @@
 import json
+import os.path
 
 import mariadb
 import sys
@@ -7,7 +8,7 @@ import hashlib
 
 class Database:
     def __init__(self):
-        with open('info.json') as jsonFile:
+        with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "info.json")) as jsonFile:
             data = json.load(jsonFile)
         try:
             # TODO: Change to actual database credentials
