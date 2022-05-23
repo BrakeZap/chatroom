@@ -27,12 +27,14 @@ class ClientThread:
         while self._running:
             try:
                 originalData = connection.recv(2048, socket.MSG_PEEK)
-                if originalData.decode() == "123":
-                    dataSize = sys.getsizeof(originalData)
-                    connection.recv(dataSize)
-                    connection.send(str(len(list_of_clients)).encode())
-                    remove(connection)
-                    continue
+                if len(originalData.decode().split(' ')) > 1:
+                    message = originalData.decode().split(' ')
+                    if message[0] == "123" and message[1] == clientAddr:
+                        dataSize = sys.getsizeof(originalData)
+                        connection.recv(dataSize)
+                        connection.send(str(len(list_of_clients)).encode())
+                        remove(connection)
+                        continue
                 originalData = connection.recv(2048)
                 if originalData:
                     data = json.loads(originalData.decode())

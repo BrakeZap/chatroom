@@ -98,6 +98,8 @@ class MainGUI(ttk.Frame):
         self.sendButton.grid_forget()
 
     def checkConnections(self, conns=None):
+        hostName = socket.gethostname()
+        publicIP = socket.gethostbyname(hostName)
         print(conns)
         if conns is None:
             conns = []
@@ -110,7 +112,7 @@ class MainGUI(ttk.Frame):
         s.settimeout(5)
         code = s.connect_ex((locIp, locPort))
         if code == 0:
-            byte = "123"
+            byte = f"123 {publicIP}"
             s.send(byte.encode())
             receive = sys.getsizeof(int)
             locData = s.recv(receive)
