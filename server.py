@@ -8,7 +8,7 @@ new_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
 port = 8080
 
-new_socket.bind(("192.168.1.15", port))
+new_socket.bind(("0.0.0.0", port))
 print("Binding successful!")
 
 new_socket.listen(10)
@@ -31,6 +31,7 @@ class ClientThread:
                     dataSize = sys.getsizeof(originalData)
                     connection.recv(dataSize)
                     connection.send(str(len(list_of_clients)).encode())
+                    remove(connection)
                     continue
                 originalData = connection.recv(2048)
                 if originalData:
@@ -66,7 +67,10 @@ def remove(connection):
         if conn == connection or thread == connection or currAddr == connection:
             print(f"Removing client: {currAddr}")
             formatStr = f"{currAddr} left."
-            broadcast(formatStr.encode(), conn)
+            #Implement join/leave message at some point
+
+            #print("Broadcasting leave message!")
+            #broadcast(formatStr.encode(), conn)
             list_of_clients.pop(index)
             thread.terminate()
         index += 1
@@ -85,11 +89,15 @@ while True:
             remove(address)
 
     # prints the address of the user that just connected to console
-    print(addr + " connected")
-    broadcast(f"{addr} connected.".encode(), conn)
+    print(addr + " connected.")
+
+    # Implement join/leave message at some point
+    #print("Broadcasting join message!")
+    #broadcast(f"{addr} connected.".encode(), conn)
+
+
     # creates and individual thread for every user that connects
     # Adds the connection, thread, and address to the list of clients
-
     ct = ClientThread()
     currThread = threading.Thread(target=ct.run, args=(conn, addr))
     currThread.start()

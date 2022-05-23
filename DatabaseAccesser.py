@@ -11,7 +11,6 @@ class Database:
         with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "info.json")) as jsonFile:
             data = json.load(jsonFile)
         try:
-            # TODO: Change to actual database credentials
             self.conn = mariadb.connect(
                 user=data["database_user"],
                 password=data["database_pass"],
