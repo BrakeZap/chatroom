@@ -28,8 +28,11 @@ class ClientThread:
             try:
                 originalData = connection.recv(2048, socket.MSG_PEEK)
                 if len(originalData.decode().split(' ')) > 1:
+                    print("is spaced out")
                     message = originalData.decode().split(' ')
+                    print(message[0], message[1])
                     if message[0] == "123" and message[1] == clientAddr:
+                        print("removing queried connection.")
                         dataSize = sys.getsizeof(originalData)
                         connection.recv(dataSize)
                         connection.send(str(len(list_of_clients)).encode())
