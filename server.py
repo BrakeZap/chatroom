@@ -29,8 +29,9 @@ class ClientThread:
                 originalData = connection.recv(2048, socket.MSG_PEEK)
                 if len(originalData.decode().split(' ')) == 2:
                     message = originalData.decode().split(' ')
+                    print(f"{clientAddr} is comparing to: {message[1]}")
                     if message[0] == "123" and message[1] == clientAddr:
-                        print("removing queried connection.")
+                        print(f"{clientAddr} is same as {message[1]}! Removing connection...")
                         dataSize = sys.getsizeof(originalData)
                         connection.recv(dataSize)
                         connection.send(str(len(list_of_clients)).encode())
@@ -67,9 +68,9 @@ def broadcast(message, connection):
 def remove(connection):
     index = 0
     for con, thread, currAddr in list_of_clients:
-        if conn == connection or thread == connection or currAddr == connection:
+        if con == connection or thread == connection or currAddr == connection:
             print(f"Removing client: {currAddr}")
-            formatStr = f"{currAddr} left."
+            #formatStr = f"{currAddr} left."
             #Implement join/leave message at some point
 
             #print("Broadcasting leave message!")
