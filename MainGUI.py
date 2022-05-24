@@ -8,6 +8,7 @@ import socket
 import select
 import _thread
 import os
+from requests import get
 
 
 class MainGUI(ttk.Frame):
@@ -98,8 +99,9 @@ class MainGUI(ttk.Frame):
         self.sendButton.grid_forget()
 
     def checkConnections(self, conns=None):
-        hostName = socket.gethostname()
-        publicIP = socket.gethostbyname(hostName)
+
+        publicIP = get('https://api.ipify.org').text
+        #publicIP = "192.168.1.15"
         print(conns)
         if conns is None:
             conns = []
